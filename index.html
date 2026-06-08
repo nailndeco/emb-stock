@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>emb 在庫管理</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Hiragino Kaku Gothic ProN',sans-serif;background:#f8f8f6;color:#1a1a1a;min-height:100vh}
+.wrap{max-width:600px;margin:0 auto;padding:2rem 1rem}
+.header{margin-bottom:2rem}
+.header h1{font-size:20px;font-weight:600;margin-bottom:4px}
+.header p{font-size:13px;color:#888}
+.card{display:block;background:#fff;border:1px solid #e8e8e4;border-radius:12px;padding:1.2rem 1.4rem;margin-bottom:12px;text-decoration:none;color:#1a1a1a;transition:box-shadow 0.15s}
+.card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.08)}
+.card-title{font-size:15px;font-weight:600;margin-bottom:4px}
+.card-desc{font-size:12px;color:#888}
+.card-arrow{float:right;font-size:18px;color:#ccc;margin-top:2px}
+.section-label{font-size:11px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;margin-top:1.5rem}
+.soon{background:#f5f5f3;border:1px dashed #ddd;border-radius:12px;padding:1.2rem 1.4rem;margin-bottom:12px;color:#aaa}
+.soon-title{font-size:15px;font-weight:600;margin-bottom:4px}
+.soon-desc{font-size:12px}
+
+/* 合言葉 */
+.password-overlay{position:fixed;inset:0;background:rgba(248,248,246,0.97);display:flex;align-items:center;justify-content:center;z-index:100}
+.password-box{background:#fff;border:1px solid #ddd;border-radius:12px;padding:2rem;width:90%;max-width:360px;text-align:center}
+.password-box h2{font-size:16px;font-weight:600;margin-bottom:8px}
+.password-box p{font-size:13px;color:#888;margin-bottom:1.5rem}
+.password-box input{height:40px;padding:0 12px;border:1px solid #ddd;border-radius:8px;font-size:15px;width:100%;text-align:center;letter-spacing:0.1em;margin-bottom:12px}
+.pw-btn{width:100%;height:42px;border:none;border-radius:8px;background:#1a1a1a;color:#fff;font-size:14px;font-weight:500;cursor:pointer}
+.pw-btn:hover{opacity:0.85}
+.password-error{font-size:12px;color:#A32D2D;margin-top:8px;display:none}
+</style>
+</head>
+<body>
+
+<div class="password-overlay" id="pw-overlay">
+  <div class="password-box">
+    <h2>emb 在庫管理</h2>
+    <p>合言葉を入力してください</p>
+    <input type="password" id="pw-input" placeholder="合言葉" onkeydown="if(event.key==='Enter')checkPw()">
+    <button class="pw-btn" onclick="checkPw()">入る</button>
+    <p class="password-error" id="pw-error">合言葉が違います</p>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="header">
+    <h1>emb 在庫管理</h1>
+    <p>商品を選んでください</p>
+  </div>
+
+  <p class="section-label">ハードケース</p>
+
+  <a class="card" href="tate-yoko.html">
+    <span class="card-arrow">›</span>
+    <div class="card-title">縦横ストラップ穴ケース</div>
+    <div class="card-desc">クリア・全機種対応</div>
+  </a>
+
+  <p class="section-label">近日追加予定</p>
+
+  <div class="soon">
+    <div class="soon-title">くすみレザーケース</div>
+    <div class="soon-desc">準備中</div>
+  </div>
+
+  <div class="soon">
+    <div class="soon-title">手帳型ケース</div>
+    <div class="soon-desc">準備中</div>
+  </div>
+
+</div>
+
+<script>
+const CORRECT_PW='emb2026';
+function checkPw(){
+  const v=document.getElementById('pw-input').value;
+  if(v===CORRECT_PW){
+    document.getElementById('pw-overlay').style.display='none';
+    sessionStorage.setItem('emb_auth','1');
+  } else {
+    document.getElementById('pw-error').style.display='block';
+    document.getElementById('pw-input').value='';
+  }
+}
+if(sessionStorage.getItem('emb_auth')==='1'){
+  document.getElementById('pw-overlay').style.display='none';
+}
+</script>
+</body>
+</html>
