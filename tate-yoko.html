@@ -3,12 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>emb 在庫管理ツール</title>
+<title>縦横ストラップ穴ケース 在庫管理</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Hiragino Kaku Gothic ProN',sans-serif;background:#f8f8f6;color:#1a1a1a;font-size:14px}
 .wrap{max-width:800px;margin:0 auto;padding:1rem}
 h1{font-size:16px;font-weight:600;margin-bottom:1.5rem;color:#1a1a1a}
+.back{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:#888;text-decoration:none;margin-bottom:1rem}
+.back:hover{color:#1a1a1a}
 .tabs{display:flex;margin-bottom:1.5rem;border-bottom:1px solid #ddd;overflow-x:auto}
 .tab{padding:8px 14px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
 .tab.active{color:#1a1a1a;border-bottom:2px solid #1a1a1a}
@@ -44,31 +46,30 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
 .rule-row{display:grid;grid-template-columns:1fr 72px 80px 130px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid #eee}
 .save-bar{display:flex;align-items:center;gap:12px;padding:10px 0}
 .flash{font-size:12px;color:#1D9E75;font-weight:500;display:none}
-
-/* 合言葉 */
 .password-overlay{position:fixed;inset:0;background:rgba(248,248,246,0.97);display:flex;align-items:center;justify-content:center;z-index:100}
 .password-box{background:#fff;border:1px solid #ddd;border-radius:12px;padding:2rem;width:90%;max-width:360px;text-align:center}
 .password-box h2{font-size:16px;font-weight:600;margin-bottom:8px}
 .password-box p{font-size:13px;color:#888;margin-bottom:1.5rem}
 .password-box input{margin-bottom:12px;text-align:center;letter-spacing:0.1em}
+.pw-btn{width:100%;height:42px;border:none;border-radius:8px;background:#1a1a1a;color:#fff;font-size:14px;font-weight:500;cursor:pointer}
+.pw-btn:hover{opacity:0.85}
 .password-error{font-size:12px;color:#A32D2D;margin-top:8px;display:none}
 </style>
 </head>
 <body>
 
-<!-- 合言葉画面 -->
 <div class="password-overlay" id="pw-overlay">
   <div class="password-box">
-    <h2>emb 在庫管理ツール</h2>
+    <h2>emb 在庫管理</h2>
     <p>合言葉を入力してください</p>
     <input type="password" id="pw-input" placeholder="合言葉" onkeydown="if(event.key==='Enter')checkPw()">
-    <br>
-    <button class="btn btn-primary" style="width:100%;justify-content:center;height:40px;font-size:14px" onclick="checkPw()">入る</button>
+    <button class="pw-btn" onclick="checkPw()">入る</button>
     <p class="password-error" id="pw-error">合言葉が違います</p>
   </div>
 </div>
 
 <div class="wrap">
+<a class="back" href="index.html">← 目次に戻る</a>
 <h1>縦横ストラップ穴ケース 在庫管理</h1>
 
 <div class="tabs">
@@ -156,16 +157,22 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
 </div>
 
 <script>
-const CORRECT_PW = 'emb2026';
+const CORRECT_PW='021212';
 
 function checkPw(){
   const v=document.getElementById('pw-input').value;
   if(v===CORRECT_PW){
     document.getElementById('pw-overlay').style.display='none';
+    sessionStorage.setItem('emb_auth','1');
   } else {
     document.getElementById('pw-error').style.display='block';
     document.getElementById('pw-input').value='';
   }
+}
+
+// 目次で認証済みならスキップ
+if(sessionStorage.getItem('emb_auth')==='1'){
+  document.getElementById('pw-overlay').style.display='none';
 }
 
 const ALL_MODELS=['iPhone17','iPhone17 Pro','iPhone17 Pro Max','iPhone17 Plus','iPhone16','iPhone16 Pro','iPhone16 Plus','iPhone16 Pro Max','iPhone15','iPhone15 Pro','iPhone15 Plus','iPhone15 Pro Max','iPhone14','iPhone14 Pro','iPhone14 Plus','iPhone14 Pro Max','iPhone13','iPhone13 Pro','iPhone13 Pro Max','iPhone13 mini','iPhone12','iPhone12 Pro','iPhone12 Pro Max','iPhone12 mini','iPhone7／8／SE2／SE3','iPhoneX／XS','iPhoneXR','iPhoneXS Max','iPhone11','iPhone11 Pro','iPhone11 Pro Max','iPhone7P／8Plus'];
