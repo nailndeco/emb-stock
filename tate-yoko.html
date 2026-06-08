@@ -36,6 +36,7 @@ select,input[type=number],input[type=password]{height:36px;padding:0 10px;border
 .alert-box{background:#FCEBEB;border:1px solid #E24B4A;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#A32D2D;display:flex;align-items:center;gap:8px}
 .unsaved-bar{background:#FAEEDA;border:1px solid #EF9F27;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#633806;display:none;align-items:center;gap:8px}
 .nav-confirm-bar{background:#E6F1FB;border:1px solid #378ADD;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#185FA5;display:none;align-items:center;gap:10px;flex-wrap:wrap}
+.sending-bar{background:#EAF3DE;border:1px solid #3B6D11;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#3B6D11;display:none;align-items:center;gap:8px}
 .empty{color:#aaa;font-size:13px;padding:2rem 0;text-align:center}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;padding:7px 8px;font-weight:500;font-size:11px;color:#888;border-bottom:1px solid #eee;white-space:nowrap}
@@ -70,7 +71,7 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
 
 <div class="wrap">
 <a class="back" href="index.html">← 目次に戻る</a>
-<h1>縦横ストラップ穴ケース 在庫管理</h1>
+<h1>縦横スト穴iPhoneケース 在庫管理</h1>
 
 <div class="tabs">
   <button class="tab active" data-tab="input" onclick="tabClick('input',this)">在庫入力</button>
@@ -81,6 +82,7 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
 
 <div id="panel-input" class="panel active">
   <div class="unsaved-bar" id="unsaved-bar">⚠️ 未保存の入力があります。保存ボタンを押してください。</div>
+  <div class="sending-bar" id="sending-bar">📤 スプレッドシートに保存中...</div>
   <div class="nav-confirm-bar" id="nav-confirm-bar">
     <span style="flex:1">「<span id="nav-dest-label"></span>」に移動します。未保存データはどうしますか？</span>
     <button onclick="doNavSave()" class="btn-save btn" style="height:30px;padding:0 12px;font-size:12px">保存して移動</button>
@@ -158,6 +160,7 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
 
 <script>
 const CORRECT_PW='021212';
+const GAS_URL='https://script.google.com/macros/s/AKfycbzza7d_jsNqbx38jyK6wNev5cdW3lUTxpT9Inv8vjH5alW0coC_nh-Qifmkt6QVmn91Og/exec';
 
 function checkPw(){
   const v=document.getElementById('pw-input').value;
@@ -169,8 +172,6 @@ function checkPw(){
     document.getElementById('pw-input').value='';
   }
 }
-
-// 目次で認証済みならスキップ
 if(sessionStorage.getItem('emb_auth')==='1'){
   document.getElementById('pw-overlay').style.display='none';
 }
@@ -249,20 +250,51 @@ function addEntry(){
   const m=document.getElementById('sel-model').value;
   const q=parseInt(document.getElementById('inp-qty').value);
   if(!m||isNaN(q)||q<0)return;
-  inv_history.push({id:Date.now()+''+Math.floor(Math.random()*9999),date:new Date().toISOString(),model:m,color:'クリア',qty:q});
+  const entry={id:Date.now()+''+Math.floor(Math.random()*9999),date:new Date().toISOString(),model:m,color:'クリア',qty:q};
+  inv_history.push(entry);
+  sendToSheet([entry]);
   document.getElementById('inp-qty').value='';
   document.getElementById('sel-model').value='';
 }
 
 function saveBulk(){
   const inputs=document.querySelectorAll('#bulk-grid input[data-model]');
-  let count=0;const now=new Date().toISOString();
+  const newEntries=[];
+  const now=new Date().toISOString();
   inputs.forEach(inp=>{
     const v=parseInt(inp.value);
-    if(!isNaN(v)&&v>=0){inv_history.push({id:Date.now()+''+Math.floor(Math.random()*9999),date:now,model:inp.dataset.model,color:'クリア',qty:v});inp.value='';count++;}
+    if(!isNaN(v)&&v>=0){
+      const entry={id:Date.now()+''+Math.floor(Math.random()*9999),date:now,model:inp.dataset.model,color:'クリア',qty:v};
+      inv_history.push(entry);
+      newEntries.push(entry);
+      inp.value='';
+    }
   });
   setDirty(false);
-  showFlash(count>0?'✓ '+count+'件保存しました':'入力がありません');
+  if(newEntries.length>0){
+    sendToSheet(newEntries);
+  } else {
+    showFlash('入力がありません');
+  }
+}
+
+function sendToSheet(entries){
+  const bar=document.getElementById('sending-bar');
+  bar.style.display='flex';
+  const payload=entries.map(e=>({date:fmtDate(e.date),model:e.model,color:e.color,qty:e.qty}));
+  fetch(GAS_URL,{
+    method:'POST',
+    body:JSON.stringify(payload)
+  })
+  .then(r=>r.json())
+  .then(()=>{
+    bar.style.display='none';
+    showFlash('✓ '+entries.length+'件保存しました');
+  })
+  .catch(()=>{
+    bar.style.display='none';
+    showFlash('⚠️ 通信エラー。もう一度お試しください');
+  });
 }
 
 function getLatest(){
