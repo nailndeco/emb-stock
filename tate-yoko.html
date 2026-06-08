@@ -8,7 +8,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Hiragino Kaku Gothic ProN',sans-serif;background:#f8f8f6;color:#1a1a1a;font-size:14px}
 .wrap{max-width:800px;margin:0 auto;padding:1rem}
-h1{font-size:16px;font-weight:600;margin-bottom:1.5rem;color:#1a1a1a}
+h1{font-size:16px;font-weight:600;margin-bottom:1.5rem}
 .back{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:#888;text-decoration:none;margin-bottom:1rem}
 .back:hover{color:#1a1a1a}
 .tabs{display:flex;margin-bottom:1.5rem;border-bottom:1px solid #ddd;overflow-x:auto}
@@ -20,13 +20,10 @@ select,input[type=number],input[type=password]{height:36px;padding:0 10px;border
 .btn{height:34px;padding:0 12px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#1a1a1a;font-size:12px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
 .btn:hover{background:#f0f0f0}
 .btn-primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
-.btn-primary:hover{opacity:0.85}
 .btn-save{background:#1D9E75;color:#fff;border-color:#1D9E75;font-size:13px;font-weight:500;height:40px;padding:0 24px}
 .btn-save:hover{background:#0F6E56}
 .btn-danger{border-color:#A32D2D;color:#A32D2D}
-.btn-danger:hover{background:#FCEBEB}
 .btn-restore{border-color:#3B6D11;color:#3B6D11}
-.btn-restore:hover{background:#EAF3DE}
 .btn-sm{height:28px;padding:0 8px;font-size:12px}
 .btn-xs{height:24px;padding:0 6px;font-size:11px}
 .section-label{font-size:11px;font-weight:600;color:#888;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em}
@@ -34,12 +31,12 @@ select,input[type=number],input[type=password]{height:36px;padding:0 10px;border
 .badge-ok{background:#EAF3DE;color:#3B6D11}
 .badge-order{background:#FCEBEB;color:#A32D2D}
 .alert-box{background:#FCEBEB;border:1px solid #E24B4A;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#A32D2D;display:flex;align-items:center;gap:8px}
-.info-bar{border:1px solid #ddd;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;display:none;align-items:center;gap:8px}
-.info-bar.yellow{background:#FAEEDA;border-color:#EF9F27;color:#633806}
-.info-bar.green{background:#EAF3DE;border-color:#3B6D11;color:#3B6D11}
-.info-bar.blue{background:#E6F1FB;border-color:#378ADD;color:#185FA5}
-.info-bar.red{background:#FCEBEB;border-color:#E24B4A;color:#A32D2D}
+.bar{border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;display:none;align-items:center;gap:8px;flex-wrap:wrap}
+.bar-yellow{background:#FAEEDA;border:1px solid #EF9F27;color:#633806}
+.bar-green{background:#EAF3DE;border:1px solid #3B6D11;color:#3B6D11}
+.bar-blue{background:#E6F1FB;border:1px solid #378ADD;color:#185FA5}
 .empty{color:#aaa;font-size:13px;padding:2rem 0;text-align:center}
+.loading{text-align:center;padding:3rem;color:#888;font-size:13px}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;padding:7px 8px;font-weight:500;font-size:11px;color:#888;border-bottom:1px solid #eee;white-space:nowrap}
 td{padding:7px 8px;border-bottom:1px solid #eee;color:#1a1a1a;vertical-align:middle}
@@ -49,26 +46,24 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
 .rule-row{display:grid;grid-template-columns:1fr 72px 80px 130px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid #eee}
 .save-bar{display:flex;align-items:center;gap:12px;padding:10px 0}
 .flash{font-size:12px;color:#1D9E75;font-weight:500;display:none}
-.loading{text-align:center;padding:2rem;color:#888;font-size:13px}
-.password-overlay{position:fixed;inset:0;background:rgba(248,248,246,0.97);display:flex;align-items:center;justify-content:center;z-index:100}
-.password-box{background:#fff;border:1px solid #ddd;border-radius:12px;padding:2rem;width:90%;max-width:360px;text-align:center}
-.password-box h2{font-size:16px;font-weight:600;margin-bottom:8px}
-.password-box p{font-size:13px;color:#888;margin-bottom:1.5rem}
-.password-box input{margin-bottom:12px;text-align:center;letter-spacing:0.1em}
+.pw-overlay{position:fixed;inset:0;background:rgba(248,248,246,0.97);display:flex;align-items:center;justify-content:center;z-index:100}
+.pw-box{background:#fff;border:1px solid #ddd;border-radius:12px;padding:2rem;width:90%;max-width:360px;text-align:center}
+.pw-box h2{font-size:16px;font-weight:600;margin-bottom:8px}
+.pw-box p{font-size:13px;color:#888;margin-bottom:1.5rem}
+.pw-box input{margin-bottom:12px;text-align:center;letter-spacing:0.1em}
 .pw-btn{width:100%;height:42px;border:none;border-radius:8px;background:#1a1a1a;color:#fff;font-size:14px;font-weight:500;cursor:pointer}
-.pw-btn:hover{opacity:0.85}
-.password-error{font-size:12px;color:#A32D2D;margin-top:8px;display:none}
+.pw-error{font-size:12px;color:#A32D2D;margin-top:8px;display:none}
 </style>
 </head>
 <body>
 
-<div class="password-overlay" id="pw-overlay">
-  <div class="password-box">
+<div class="pw-overlay" id="pw-overlay">
+  <div class="pw-box">
     <h2>emb 在庫管理</h2>
     <p>合言葉を入力してください</p>
     <input type="password" id="pw-input" placeholder="合言葉" onkeydown="if(event.key==='Enter')checkPw()">
     <button class="pw-btn" onclick="checkPw()">入る</button>
-    <p class="password-error" id="pw-error">合言葉が違います</p>
+    <p class="pw-error" id="pw-error">合言葉が違います</p>
   </div>
 </div>
 
@@ -80,19 +75,19 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
 
 <div id="main-content" style="display:none">
 <div class="tabs">
-  <button class="tab active" data-tab="input" onclick="tabClick('input',this)">在庫入力</button>
-  <button class="tab" data-tab="order" onclick="tabClick('order',this)">発注判断</button>
-  <button class="tab" data-tab="history" onclick="tabClick('history',this)">履歴</button>
-  <button class="tab" data-tab="rules" onclick="tabClick('rules',this)">発注ライン設定</button>
+  <button class="tab active" onclick="tabClick('input',this)">在庫入力</button>
+  <button class="tab" onclick="tabClick('order',this)">発注判断</button>
+  <button class="tab" onclick="tabClick('history',this)">履歴</button>
+  <button class="tab" onclick="tabClick('rules',this)">発注ライン設定</button>
 </div>
 
 <div id="panel-input" class="panel active">
-  <div class="info-bar yellow" id="unsaved-bar">⚠️ 未保存の入力があります。保存ボタンを押してください。</div>
-  <div class="info-bar green" id="sending-bar">📤 スプレッドシートに保存中...</div>
-  <div class="info-bar blue" id="nav-confirm-bar">
+  <div class="bar bar-yellow" id="unsaved-bar">⚠️ 未保存の入力があります。保存ボタンを押してください。</div>
+  <div class="bar bar-green" id="sending-bar">📤 スプレッドシートに保存中...</div>
+  <div class="bar bar-blue" id="nav-confirm-bar">
     <span style="flex:1">「<span id="nav-dest-label"></span>」に移動します。未保存データはどうしますか？</span>
-    <button onclick="doNavSave()" class="btn-save btn" style="height:30px;padding:0 12px;font-size:12px">保存して移動</button>
-    <button onclick="doNavDiscard()" class="btn btn-sm" style="border-color:#185FA5;color:#185FA5">保存せず移動</button>
+    <button onclick="doNavSave()" style="height:30px;padding:0 12px;border:none;border-radius:6px;background:#1D9E75;color:#fff;font-size:12px;cursor:pointer">保存して移動</button>
+    <button onclick="doNavDiscard()" style="height:30px;padding:0 10px;border:1px solid #185FA5;border-radius:6px;background:transparent;color:#185FA5;font-size:12px;cursor:pointer">保存せず移動</button>
     <button onclick="doNavCancel()" class="btn btn-sm">キャンセル</button>
   </div>
 
@@ -138,7 +133,7 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
   <p class="section-label">入力履歴</p>
   <div class="toolbar">
     <select id="hist-filter" style="width:auto;height:34px"><option value="">全機種</option></select>
-    <label style="display:flex;align-items:center;gap:6px;margin-bottom:0;cursor:pointer;font-size:13px;color:#1a1a1a">
+    <label style="display:flex;align-items:center;gap:6px;margin-bottom:0;cursor:pointer;font-size:13px">
       <input type="checkbox" id="chk-all" onchange="toggleAll(this)"> すべて選択
     </label>
     <button onclick="deleteChecked()" class="btn btn-danger btn-sm">🗑 選択削除</button>
@@ -161,16 +156,41 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
     <span style="font-size:11px;color:#888">廃盤日</span>
   </div>
   <div id="rules-grid"></div>
-  <div id="settings-saving" style="font-size:12px;color:#888;margin-top:8px;display:none">保存中...</div>
+  <p id="settings-saving" style="font-size:12px;color:#888;margin-top:8px;display:none">保存中...</p>
+  <p id="settings-saved" style="font-size:12px;color:#1D9E75;margin-top:8px;display:none">✓ 設定を保存しました</p>
 </div>
 </div>
 </div>
 
 <script>
-const CORRECT_PW='021212';
-const GAS_URL='https://script.google.com/macros/s/AKfycbwIy-U_ybQjLxVKtWuVA2DRZIi9OgbwBEFCFhh7mB_sqHfcD36rvZgcun25IcOCktw8rA/exec';
-const PRODUCT_NAME='縦横スト穴iPhoneケース';
+const CORRECT_PW = '021212';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwIy-U_ybQjLxVKtWuVA2DRZIi9OgbwBEFCFhh7mB_sqHfcD36rvZgcun25IcOCktw8rA/exec';
+const PRODUCT_NAME = '縦横スト穴iPhoneケース';
 
+const ALL_MODELS = ['iPhone17','iPhone17 Pro','iPhone17 Pro Max','iPhone17 Plus','iPhone16','iPhone16 Pro','iPhone16 Plus','iPhone16 Pro Max','iPhone15','iPhone15 Pro','iPhone15 Plus','iPhone15 Pro Max','iPhone14','iPhone14 Pro','iPhone14 Plus','iPhone14 Pro Max','iPhone13','iPhone13 Pro','iPhone13 Pro Max','iPhone13 mini','iPhone12','iPhone12 Pro','iPhone12 Pro Max','iPhone12 mini','iPhone7／8／SE2／SE3','iPhoneX／XS','iPhoneXR','iPhoneXS Max','iPhone11','iPhone11 Pro','iPhone11 Pro Max','iPhone7P／8Plus'];
+
+let inv_history = [];
+let rules = {};
+let discontinued = {};
+let bulkDirty = false;
+let pendingTab = null;
+let saveTimer = null;
+
+function todayStr(){const d=new Date();return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();}
+function fmtDate(iso){const d=new Date(iso);return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');}
+function activeModels(){return ALL_MODELS.filter(m=>!discontinued[m]);}
+function showBar(id,v){document.getElementById(id).style.display=v?'flex':'none';}
+function setDirty(v){bulkDirty=v;showBar('unsaved-bar',v);}
+
+function showFlash(msg){
+  ['flash-top','flash-bottom'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.textContent=msg;el.style.display='inline';
+    setTimeout(()=>el.style.display='none',3000);
+  });
+}
+
+// 合言葉チェック
 function checkPw(){
   const v=document.getElementById('pw-input').value;
   if(v===CORRECT_PW){
@@ -187,66 +207,57 @@ if(sessionStorage.getItem('emb_auth')==='1'){
   init();
 }
 
-const ALL_MODELS=['iPhone17','iPhone17 Pro','iPhone17 Pro Max','iPhone17 Plus','iPhone16','iPhone16 Pro','iPhone16 Plus','iPhone16 Pro Max','iPhone15','iPhone15 Pro','iPhone15 Plus','iPhone15 Pro Max','iPhone14','iPhone14 Pro','iPhone14 Plus','iPhone14 Pro Max','iPhone13','iPhone13 Pro','iPhone13 Pro Max','iPhone13 mini','iPhone12','iPhone12 Pro','iPhone12 Pro Max','iPhone12 mini','iPhone7／8／SE2／SE3','iPhoneX／XS','iPhoneXR','iPhoneXS Max','iPhone11','iPhone11 Pro','iPhone11 Pro Max','iPhone7P／8Plus'];
-
-let inv_history=[];
-let rules={};
-let discontinued={};
-let bulkDirty=false;
-let pendingTab=null;
-let saveSettingsTimer=null;
-
-function todayStr(){const d=new Date();return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();}
-function fmtDate(iso){const d=new Date(iso);return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');}
-function activeModels(){return ALL_MODELS.filter(m=>!discontinued[m]);}
-
-function showBar(id,show){document.getElementById(id).style.display=show?'flex':'none';}
-function setDirty(v){bulkDirty=v;showBar('unsaved-bar',v);}
-
-function showFlash(msg){
-  ['flash-top','flash-bottom'].forEach(id=>{
-    const el=document.getElementById(id);
-    el.textContent=msg;el.style.display='inline';
-    setTimeout(()=>el.style.display='none',3000);
-  });
-}
-
+// 設定読み込み
 function init(){
   document.getElementById('loading').style.display='block';
   document.getElementById('main-content').style.display='none';
-  fetch(GAS_URL+'?type=loadSettings')
+  fetch(GAS_URL+'?type=loadSettings&product='+encodeURIComponent(PRODUCT_NAME))
   .then(r=>r.json())
   .then(data=>{
+    rules={};discontinued={};
     if(data.settings && data.settings.length>0){
       data.settings.forEach(s=>{
-        rules[s.model]={threshold:parseInt(s.threshold)||10};
-        if(s.discontinued){discontinued[s.model]=s.discDate||todayStr();}
+        rules[s.model]={threshold:Number(s.threshold)||10};
+        if(s.discontinued) discontinued[s.model]=s.discDate||todayStr();
       });
     }
     document.getElementById('loading').style.display='none';
     document.getElementById('main-content').style.display='block';
-    buildSelModel();buildBulkGrid();
+    buildSelModel();
+    buildBulkGrid();
   })
   .catch(()=>{
     document.getElementById('loading').style.display='none';
     document.getElementById('main-content').style.display='block';
-    buildSelModel();buildBulkGrid();
+    buildSelModel();
+    buildBulkGrid();
   });
 }
 
+// 設定保存（1秒後に自動）
 function scheduleSaveSettings(){
-  if(saveSettingsTimer)clearTimeout(saveSettingsTimer);
+  if(saveTimer) clearTimeout(saveTimer);
   document.getElementById('settings-saving').style.display='block';
-  saveSettingsTimer=setTimeout(()=>{
+  document.getElementById('settings-saved').style.display='none';
+  saveTimer=setTimeout(()=>{
     const settings=ALL_MODELS.map(m=>({
       model:m,
       threshold:(rules[m]||{threshold:10}).threshold,
       discontinued:!!discontinued[m],
       discDate:discontinued[m]||''
     }));
-    fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'saveSettings',settings:settings})})
-    .then(()=>document.getElementById('settings-saving').style.display='none')
-    .catch(()=>document.getElementById('settings-saving').style.display='none');
+    fetch(GAS_URL,{
+      method:'POST',
+      body:JSON.stringify({type:'saveSettings',product:PRODUCT_NAME,settings:settings})
+    })
+    .then(()=>{
+      document.getElementById('settings-saving').style.display='none';
+      document.getElementById('settings-saved').style.display='block';
+      setTimeout(()=>document.getElementById('settings-saved').style.display='none',2000);
+    })
+    .catch(()=>{
+      document.getElementById('settings-saving').style.display='none';
+    });
   },1000);
 }
 
@@ -254,7 +265,12 @@ function buildSelModel(){
   const sel=document.getElementById('sel-model');
   const cur=sel.value;
   sel.innerHTML='<option value="">選択してください</option>';
-  activeModels().forEach(m=>{const o=document.createElement('option');o.textContent=m;if(m===cur)o.selected=true;sel.appendChild(o);});
+  activeModels().forEach(m=>{
+    const o=document.createElement('option');
+    o.textContent=m;
+    if(m===cur)o.selected=true;
+    sel.appendChild(o);
+  });
 }
 
 function buildBulkGrid(){
@@ -314,30 +330,45 @@ function saveBulk(){
     const v=parseInt(inp.value);
     if(!isNaN(v)&&v>=0){
       const entry={id:Date.now()+''+Math.floor(Math.random()*9999),date:now,model:inp.dataset.model,color:'クリア',qty:v};
-      inv_history.push(entry);newEntries.push(entry);inp.value='';
+      inv_history.push(entry);
+      newEntries.push(entry);
+      inp.value='';
     }
   });
   setDirty(false);
-  if(newEntries.length>0)sendToSheet(newEntries);
+  if(newEntries.length>0) sendToSheet(newEntries);
   else showFlash('入力がありません');
 }
 
 function sendToSheet(entries){
   showBar('sending-bar',true);
   const rows=entries.map(e=>({date:fmtDate(e.date),model:e.model,color:e.color,qty:e.qty}));
-  fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'saveStock',product:PRODUCT_NAME,rows:rows})})
+  fetch(GAS_URL,{
+    method:'POST',
+    body:JSON.stringify({type:'saveStock',product:PRODUCT_NAME,rows:rows})
+  })
   .then(r=>r.json())
-  .then(()=>{showBar('sending-bar',false);showFlash('✓ '+entries.length+'件保存しました');})
-  .catch(()=>{showBar('sending-bar',false);showFlash('⚠️ 通信エラー。もう一度お試しください');});
+  .then(()=>{
+    showBar('sending-bar',false);
+    showFlash('✓ '+entries.length+'件保存しました');
+  })
+  .catch(()=>{
+    showBar('sending-bar',false);
+    showFlash('⚠️ 通信エラー。もう一度お試しください');
+  });
 }
 
 function getLatest(){
   const map={};
-  inv_history.forEach(h=>{const k=h.model+'|'+h.color;if(!map[k]||h.date>map[k].date)map[k]=h;});
+  inv_history.forEach(h=>{
+    const k=h.model+'|'+h.color;
+    if(!map[k]||h.date>map[k].date) map[k]=h;
+  });
   return map;
 }
 function getPrev(model,color,afterDate){
-  return inv_history.filter(h=>h.model===model&&h.color===color&&h.date<afterDate).sort((a,b)=>b.date.localeCompare(a.date))[0]||null;
+  return inv_history.filter(h=>h.model===model&&h.color===color&&h.date<afterDate)
+    .sort((a,b)=>b.date.localeCompare(a.date))[0]||null;
 }
 function daysBetween(a,b){return Math.max(1,Math.round((new Date(b)-new Date(a))/86400000));}
 
@@ -372,7 +403,7 @@ function renderOrder(){
     tr.innerHTML=`<td>${cur.model}</td><td>${cur.qty}個</td><td style="font-size:12px;color:#888">${diff}</td><td style="font-size:12px">${pace}</td><td style="font-size:12px">${days}</td><td><span class="badge ${badge}">${label}</span></td>`;
     tbody.appendChild(tr);
   });
-  if(orderCount>0)alerts.innerHTML=`<div class="alert-box">⚠️ 発注が必要な機種が${orderCount}件あります</div>`;
+  if(orderCount>0) alerts.innerHTML=`<div class="alert-box">⚠️ 発注が必要な機種が${orderCount}件あります</div>`;
 }
 
 function renderHistory(){
@@ -401,7 +432,8 @@ function deleteChecked(){
   const ids=[...document.querySelectorAll('.row-chk:checked')].map(c=>c.dataset.id);
   if(!ids.length)return;
   inv_history=inv_history.filter(h=>!ids.includes(h.id));
-  renderHistory();document.getElementById('chk-all').checked=false;
+  renderHistory();
+  document.getElementById('chk-all').checked=false;
 }
 
 function renderRules(){
@@ -410,16 +442,20 @@ function renderRules(){
     const r=rules[m]||{threshold:10};
     const isDisc=!!discontinued[m];
     const row=document.createElement('div');
-    row.className='rule-row';row.style.opacity=isDisc?'0.45':'1';
+    row.className='rule-row';
+    row.style.opacity=isDisc?'0.45':'1';
+    const nameSpan=document.createElement('span');
+    nameSpan.style.cssText=`font-size:13px;color:${isDisc?'#aaa':'#1a1a1a'}`;
+    nameSpan.textContent=m;
     const inp=document.createElement('input');
     inp.type='number';inp.className='rule-inp';inp.dataset.m=m;
     inp.value=r.threshold||10;inp.min=0;
     if(isDisc)inp.disabled=true;
     inp.style.cssText=`height:30px;font-size:13px;padding:0 8px;border:1px solid #ddd;border-radius:6px;width:100%;background:${isDisc?'#f5f5f3':'#fff'}`;
-    inp.addEventListener('change',()=>{rules[m]={threshold:parseInt(inp.value)||0};scheduleSaveSettings();});
-    const nameSpan=document.createElement('span');
-    nameSpan.style.cssText=`font-size:13px;color:${isDisc?'#aaa':'#1a1a1a'}`;
-    nameSpan.textContent=m;
+    inp.addEventListener('change',()=>{
+      rules[m]={threshold:parseInt(inp.value)||0};
+      scheduleSaveSettings();
+    });
     const btn=document.createElement('button');
     btn.style.cssText=`height:28px;padding:0 8px;border:1px solid ${isDisc?'#3B6D11':'#A32D2D'};border-radius:6px;background:transparent;color:${isDisc?'#3B6D11':'#A32D2D'};font-size:12px;cursor:pointer`;
     btn.textContent=isDisc?'復活':'廃盤';
@@ -433,7 +469,8 @@ function renderRules(){
 }
 
 function toggleDisc(m){
-  if(discontinued[m]){delete discontinued[m];}else{discontinued[m]=todayStr();}
+  if(discontinued[m]) delete discontinued[m];
+  else discontinued[m]=todayStr();
   buildSelModel();buildBulkGrid();renderRules();
   scheduleSaveSettings();
 }
@@ -441,7 +478,10 @@ function toggleDisc(m){
 function applyBulkThreshold(){
   const v=parseInt(document.getElementById('bulk-threshold').value);
   if(isNaN(v)||v<0)return;
-  document.querySelectorAll('.rule-inp:not([disabled])').forEach(inp=>{inp.value=v;rules[inp.dataset.m]={threshold:v};});
+  document.querySelectorAll('.rule-inp:not([disabled])').forEach(inp=>{
+    inp.value=v;
+    rules[inp.dataset.m]={threshold:v};
+  });
   scheduleSaveSettings();
 }
 
