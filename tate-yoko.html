@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>縦横ストラップ穴ケース 在庫管理</title>
+<title>縦横スト穴iPhoneケース 在庫管理</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Hiragino Kaku Gothic ProN',sans-serif;background:#f8f8f6;color:#1a1a1a;font-size:14px}
@@ -34,9 +34,11 @@ select,input[type=number],input[type=password]{height:36px;padding:0 10px;border
 .badge-ok{background:#EAF3DE;color:#3B6D11}
 .badge-order{background:#FCEBEB;color:#A32D2D}
 .alert-box{background:#FCEBEB;border:1px solid #E24B4A;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#A32D2D;display:flex;align-items:center;gap:8px}
-.unsaved-bar{background:#FAEEDA;border:1px solid #EF9F27;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#633806;display:none;align-items:center;gap:8px}
-.nav-confirm-bar{background:#E6F1FB;border:1px solid #378ADD;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#185FA5;display:none;align-items:center;gap:10px;flex-wrap:wrap}
-.sending-bar{background:#EAF3DE;border:1px solid #3B6D11;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#3B6D11;display:none;align-items:center;gap:8px}
+.info-bar{border:1px solid #ddd;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;display:none;align-items:center;gap:8px}
+.info-bar.yellow{background:#FAEEDA;border-color:#EF9F27;color:#633806}
+.info-bar.green{background:#EAF3DE;border-color:#3B6D11;color:#3B6D11}
+.info-bar.blue{background:#E6F1FB;border-color:#378ADD;color:#185FA5}
+.info-bar.red{background:#FCEBEB;border-color:#E24B4A;color:#A32D2D}
 .empty{color:#aaa;font-size:13px;padding:2rem 0;text-align:center}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;padding:7px 8px;font-weight:500;font-size:11px;color:#888;border-bottom:1px solid #eee;white-space:nowrap}
@@ -47,6 +49,7 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
 .rule-row{display:grid;grid-template-columns:1fr 72px 80px 130px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid #eee}
 .save-bar{display:flex;align-items:center;gap:12px;padding:10px 0}
 .flash{font-size:12px;color:#1D9E75;font-weight:500;display:none}
+.loading{text-align:center;padding:2rem;color:#888;font-size:13px}
 .password-overlay{position:fixed;inset:0;background:rgba(248,248,246,0.97);display:flex;align-items:center;justify-content:center;z-index:100}
 .password-box{background:#fff;border:1px solid #ddd;border-radius:12px;padding:2rem;width:90%;max-width:360px;text-align:center}
 .password-box h2{font-size:16px;font-weight:600;margin-bottom:8px}
@@ -73,6 +76,9 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
 <a class="back" href="index.html">← 目次に戻る</a>
 <h1>縦横スト穴iPhoneケース 在庫管理</h1>
 
+<div id="loading" class="loading">設定を読み込み中...</div>
+
+<div id="main-content" style="display:none">
 <div class="tabs">
   <button class="tab active" data-tab="input" onclick="tabClick('input',this)">在庫入力</button>
   <button class="tab" data-tab="order" onclick="tabClick('order',this)">発注判断</button>
@@ -81,9 +87,9 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
 </div>
 
 <div id="panel-input" class="panel active">
-  <div class="unsaved-bar" id="unsaved-bar">⚠️ 未保存の入力があります。保存ボタンを押してください。</div>
-  <div class="sending-bar" id="sending-bar">📤 スプレッドシートに保存中...</div>
-  <div class="nav-confirm-bar" id="nav-confirm-bar">
+  <div class="info-bar yellow" id="unsaved-bar">⚠️ 未保存の入力があります。保存ボタンを押してください。</div>
+  <div class="info-bar green" id="sending-bar">📤 スプレッドシートに保存中...</div>
+  <div class="info-bar blue" id="nav-confirm-bar">
     <span style="flex:1">「<span id="nav-dest-label"></span>」に移動します。未保存データはどうしますか？</span>
     <button onclick="doNavSave()" class="btn-save btn" style="height:30px;padding:0 12px;font-size:12px">保存して移動</button>
     <button onclick="doNavDiscard()" class="btn btn-sm" style="border-color:#185FA5;color:#185FA5">保存せず移動</button>
@@ -141,7 +147,7 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
 </div>
 
 <div id="panel-rules" class="panel">
-  <p class="section-label">発注ライン設定（残り○個以下で🔴発注）<span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px;color:#aaa">変更は即反映</span></p>
+  <p class="section-label">発注ライン設定（残り○個以下で🔴発注）<span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px;color:#aaa">変更は自動保存</span></p>
   <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;padding:10px;background:#f5f5f3;border-radius:8px;flex-wrap:wrap">
     <span style="font-size:13px">アクティブ機種を一括設定：</span>
     <input type="number" id="bulk-threshold" min="0" value="10" style="width:64px;height:30px">
@@ -155,18 +161,22 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
     <span style="font-size:11px;color:#888">廃盤日</span>
   </div>
   <div id="rules-grid"></div>
+  <div id="settings-saving" style="font-size:12px;color:#888;margin-top:8px;display:none">保存中...</div>
+</div>
 </div>
 </div>
 
 <script>
 const CORRECT_PW='021212';
-const GAS_URL='https://script.google.com/macros/s/AKfycbzza7d_jsNqbx38jyK6wNev5cdW3lUTxpT9Inv8vjH5alW0coC_nh-Qifmkt6QVmn91Og/exec';
+const GAS_URL='https://script.google.com/macros/s/AKfycbwIy-U_ybQjLxVKtWuVA2DRZIi9OgbwBEFCFhh7mB_sqHfcD36rvZgcun25IcOCktw8rA/exec';
+const PRODUCT_NAME='縦横スト穴iPhoneケース';
 
 function checkPw(){
   const v=document.getElementById('pw-input').value;
   if(v===CORRECT_PW){
     document.getElementById('pw-overlay').style.display='none';
     sessionStorage.setItem('emb_auth','1');
+    init();
   } else {
     document.getElementById('pw-error').style.display='block';
     document.getElementById('pw-input').value='';
@@ -174,6 +184,7 @@ function checkPw(){
 }
 if(sessionStorage.getItem('emb_auth')==='1'){
   document.getElementById('pw-overlay').style.display='none';
+  init();
 }
 
 const ALL_MODELS=['iPhone17','iPhone17 Pro','iPhone17 Pro Max','iPhone17 Plus','iPhone16','iPhone16 Pro','iPhone16 Plus','iPhone16 Pro Max','iPhone15','iPhone15 Pro','iPhone15 Plus','iPhone15 Pro Max','iPhone14','iPhone14 Pro','iPhone14 Plus','iPhone14 Pro Max','iPhone13','iPhone13 Pro','iPhone13 Pro Max','iPhone13 mini','iPhone12','iPhone12 Pro','iPhone12 Pro Max','iPhone12 mini','iPhone7／8／SE2／SE3','iPhoneX／XS','iPhoneXR','iPhoneXS Max','iPhone11','iPhone11 Pro','iPhone11 Pro Max','iPhone7P／8Plus'];
@@ -183,15 +194,14 @@ let rules={};
 let discontinued={};
 let bulkDirty=false;
 let pendingTab=null;
+let saveSettingsTimer=null;
 
 function todayStr(){const d=new Date();return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate();}
 function fmtDate(iso){const d=new Date(iso);return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');}
 function activeModels(){return ALL_MODELS.filter(m=>!discontinued[m]);}
 
-function setDirty(v){
-  bulkDirty=v;
-  document.getElementById('unsaved-bar').style.display=v?'flex':'none';
-}
+function showBar(id,show){document.getElementById(id).style.display=show?'flex':'none';}
+function setDirty(v){bulkDirty=v;showBar('unsaved-bar',v);}
 
 function showFlash(msg){
   ['flash-top','flash-bottom'].forEach(id=>{
@@ -199,6 +209,45 @@ function showFlash(msg){
     el.textContent=msg;el.style.display='inline';
     setTimeout(()=>el.style.display='none',3000);
   });
+}
+
+function init(){
+  document.getElementById('loading').style.display='block';
+  document.getElementById('main-content').style.display='none';
+  fetch(GAS_URL+'?type=loadSettings')
+  .then(r=>r.json())
+  .then(data=>{
+    if(data.settings && data.settings.length>0){
+      data.settings.forEach(s=>{
+        rules[s.model]={threshold:parseInt(s.threshold)||10};
+        if(s.discontinued){discontinued[s.model]=s.discDate||todayStr();}
+      });
+    }
+    document.getElementById('loading').style.display='none';
+    document.getElementById('main-content').style.display='block';
+    buildSelModel();buildBulkGrid();
+  })
+  .catch(()=>{
+    document.getElementById('loading').style.display='none';
+    document.getElementById('main-content').style.display='block';
+    buildSelModel();buildBulkGrid();
+  });
+}
+
+function scheduleSaveSettings(){
+  if(saveSettingsTimer)clearTimeout(saveSettingsTimer);
+  document.getElementById('settings-saving').style.display='block';
+  saveSettingsTimer=setTimeout(()=>{
+    const settings=ALL_MODELS.map(m=>({
+      model:m,
+      threshold:(rules[m]||{threshold:10}).threshold,
+      discontinued:!!discontinued[m],
+      discDate:discontinued[m]||''
+    }));
+    fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'saveSettings',settings:settings})})
+    .then(()=>document.getElementById('settings-saving').style.display='none')
+    .catch(()=>document.getElementById('settings-saving').style.display='none');
+  },1000);
 }
 
 function buildSelModel(){
@@ -225,15 +274,15 @@ function tabClick(t,el){
   if(bulkDirty&&t!=='input'){
     pendingTab={t,el};
     document.getElementById('nav-dest-label').textContent=el.textContent.trim();
-    document.getElementById('nav-confirm-bar').style.display='flex';
+    showBar('nav-confirm-bar',true);
     return;
   }
   doSwitch(t,el);
 }
 
-function doNavSave(){saveBulk();document.getElementById('nav-confirm-bar').style.display='none';if(pendingTab)doSwitch(pendingTab.t,pendingTab.el);pendingTab=null;}
-function doNavDiscard(){document.getElementById('nav-confirm-bar').style.display='none';setDirty(false);if(pendingTab)doSwitch(pendingTab.t,pendingTab.el);pendingTab=null;}
-function doNavCancel(){document.getElementById('nav-confirm-bar').style.display='none';pendingTab=null;}
+function doNavSave(){saveBulk();showBar('nav-confirm-bar',false);if(pendingTab)doSwitch(pendingTab.t,pendingTab.el);pendingTab=null;}
+function doNavDiscard(){showBar('nav-confirm-bar',false);setDirty(false);if(pendingTab)doSwitch(pendingTab.t,pendingTab.el);pendingTab=null;}
+function doNavCancel(){showBar('nav-confirm-bar',false);pendingTab=null;}
 
 function doSwitch(t,el){
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
@@ -265,36 +314,21 @@ function saveBulk(){
     const v=parseInt(inp.value);
     if(!isNaN(v)&&v>=0){
       const entry={id:Date.now()+''+Math.floor(Math.random()*9999),date:now,model:inp.dataset.model,color:'クリア',qty:v};
-      inv_history.push(entry);
-      newEntries.push(entry);
-      inp.value='';
+      inv_history.push(entry);newEntries.push(entry);inp.value='';
     }
   });
   setDirty(false);
-  if(newEntries.length>0){
-    sendToSheet(newEntries);
-  } else {
-    showFlash('入力がありません');
-  }
+  if(newEntries.length>0)sendToSheet(newEntries);
+  else showFlash('入力がありません');
 }
 
 function sendToSheet(entries){
-  const bar=document.getElementById('sending-bar');
-  bar.style.display='flex';
-  const payload=entries.map(e=>({date:fmtDate(e.date),model:e.model,color:e.color,qty:e.qty}));
-  fetch(GAS_URL,{
-    method:'POST',
-    body:JSON.stringify(payload)
-  })
+  showBar('sending-bar',true);
+  const rows=entries.map(e=>({date:fmtDate(e.date),model:e.model,color:e.color,qty:e.qty}));
+  fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'saveStock',product:PRODUCT_NAME,rows:rows})})
   .then(r=>r.json())
-  .then(()=>{
-    bar.style.display='none';
-    showFlash('✓ '+entries.length+'件保存しました');
-  })
-  .catch(()=>{
-    bar.style.display='none';
-    showFlash('⚠️ 通信エラー。もう一度お試しください');
-  });
+  .then(()=>{showBar('sending-bar',false);showFlash('✓ '+entries.length+'件保存しました');})
+  .catch(()=>{showBar('sending-bar',false);showFlash('⚠️ 通信エラー。もう一度お試しください');});
 }
 
 function getLatest(){
@@ -382,7 +416,7 @@ function renderRules(){
     inp.value=r.threshold||10;inp.min=0;
     if(isDisc)inp.disabled=true;
     inp.style.cssText=`height:30px;font-size:13px;padding:0 8px;border:1px solid #ddd;border-radius:6px;width:100%;background:${isDisc?'#f5f5f3':'#fff'}`;
-    inp.addEventListener('change',()=>{rules[m]={threshold:parseInt(inp.value)||0};});
+    inp.addEventListener('change',()=>{rules[m]={threshold:parseInt(inp.value)||0};scheduleSaveSettings();});
     const nameSpan=document.createElement('span');
     nameSpan.style.cssText=`font-size:13px;color:${isDisc?'#aaa':'#1a1a1a'}`;
     nameSpan.textContent=m;
@@ -401,15 +435,16 @@ function renderRules(){
 function toggleDisc(m){
   if(discontinued[m]){delete discontinued[m];}else{discontinued[m]=todayStr();}
   buildSelModel();buildBulkGrid();renderRules();
+  scheduleSaveSettings();
 }
 
 function applyBulkThreshold(){
   const v=parseInt(document.getElementById('bulk-threshold').value);
   if(isNaN(v)||v<0)return;
   document.querySelectorAll('.rule-inp:not([disabled])').forEach(inp=>{inp.value=v;rules[inp.dataset.m]={threshold:v};});
+  scheduleSaveSettings();
 }
 
-buildSelModel();buildBulkGrid();
 document.getElementById('hist-filter').addEventListener('change',renderHistory);
 </script>
 </body>
