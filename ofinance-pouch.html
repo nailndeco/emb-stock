@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>お財布スマホポーチ 在庫管理</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Hiragino Kaku Gothic ProN',sans-serif;background:#f8f8f6;color:#1a1a1a;font-size:14px}
+.wrap{max-width:800px;margin:0 auto;padding:1rem}
+h1{font-size:16px;font-weight:600;margin-bottom:1.5rem}
+.back{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:#888;text-decoration:none;margin-bottom:1rem}
+.back:hover{color:#1a1a1a}
+.tabs{display:flex;margin-bottom:1.5rem;border-bottom:1px solid #ddd;overflow-x:auto}
+.tab{padding:8px 14px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tab.active{color:#1a1a1a;border-bottom:2px solid #1a1a1a}
+.panel{display:none}.panel.active{display:block}
+label{font-size:12px;color:#666;display:block;margin-bottom:4px}
+select,input[type=number],input[type=password]{height:36px;padding:0 10px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#1a1a1a;font-size:14px;width:100%}
+.btn{height:34px;padding:0 12px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#1a1a1a;font-size:12px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.btn:hover{background:#f0f0f0}
+.btn-primary{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.btn-save{background:#1D9E75;color:#fff;border-color:#1D9E75;font-size:13px;font-weight:500;height:40px;padding:0 24px}
+.btn-save:hover{background:#0F6E56}
+.btn-danger{border-color:#A32D2D;color:#A32D2D}
+.btn-restore{border-color:#3B6D11;color:#3B6D11}
+.btn-sm{height:28px;padding:0 8px;font-size:12px}
+.btn-xs{height:24px;padding:0 6px;font-size:11px}
+.section-label{font-size:11px;font-weight:600;color:#888;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:500}
+.badge-ok{background:#EAF3DE;color:#3B6D11}
+.badge-order{background:#FCEBEB;color:#A32D2D}
+.alert-box{background:#FCEBEB;border:1px solid #E24B4A;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#A32D2D;display:flex;align-items:center;gap:8px}
+.bar{border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;display:none;align-items:center;gap:8px;flex-wrap:wrap}
+.bar-yellow{background:#FAEEDA;border:1px solid #EF9F27;color:#633806}
+.bar-green{background:#EAF3DE;border:1px solid #3B6D11;color:#3B6D11}
+.bar-blue{background:#E6F1FB;border:1px solid #378ADD;color:#185FA5}
+.empty{color:#aaa;font-size:13px;padding:2rem 0;text-align:center}
+.loading{text-align:center;padding:3rem;color:#888;font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:7px 8px;font-weight:500;font-size:11px;color:#888;border-bottom:1px solid #eee;white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid #eee;color:#1a1a1a;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+input[type=checkbox]{width:15px;height:15px;cursor:pointer}
+.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.rule-row{display:grid;grid-template-columns:1fr 72px 80px 130px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid #eee}
+.save-bar{display:flex;align-items:center;gap:12px;padding:10px 0}
+.flash{font-size:12px;color:#1D9E75;font-weight:500;display:none}
+.item-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.item-card{background:#fff;border:1px solid #ddd;border-radius:8px;padding:12px}
+.item-card .item-name{font-size:13px;font-weight:500;margin-bottom:8px}
+.item-card input{width:100%;height:32px;padding:0 8px;border:1px solid #ddd;border-radius:6px;font-size:13px}
+.pw-overlay{position:fixed;inset:0;background:rgba(248,248,246,0.97);display:flex;align-items:center;justify-content:center;z-index:100}
+.pw-box{background:#fff;border:1px solid #ddd;border-radius:12px;padding:2rem;width:90%;max-width:360px;text-align:center}
+.pw-box h2{font-size:16px;font-weight:600;margin-bottom:8px}
+.pw-box p{font-size:13px;color:#888;margin-bottom:1.5rem}
+.pw-box input{margin-bottom:12px;text-align:center;letter-spacing:0.1em}
+.pw-btn{width:100%;height:42px;border:none;border-radius:8px;background:#1a1a1a;color:#fff;font-size:14px;font-weight:500;cursor:pointer}
+.pw-error{font-size:12px;color:#A32D2D;margin-top:8px;display:none}
+</style>
+</head>
+<body>
+
+<div class="pw-overlay" id="pw-overlay">
+  <div class="pw-box">
+    <h2>emb 在庫管理</h2>
+    <p>合言葉を入力してください</p>
+    <input type="password" id="pw-input" placeholder="合言葉" onkeydown="if(event.key==='Enter')checkPw()">
+    <button class="pw-btn" onclick="checkPw()">入る</button>
+    <p class="pw-error" id="pw-error">合言葉が違います</p>
+  </div>
+</div>
+
+<div class="wrap">
+<a class="back" href="index.html">← 目次に戻る</a>
+<h1>お財布スマホポーチ 在庫管理</h1>
+
+<div id="loading" class="loading">設定を読み込み中...</div>
+
+<div id="main-content" style="display:none">
+<div class="tabs">
+  <button class="tab active" onclick="tabClick('input',this)">在庫入力</button>
+  <button class="tab" onclick="tabClick('order',this)">発注判断</button>
+  <button class="tab" onclick="tabClick('history',this)">履歴</button>
+  <button class="tab" onclick="tabClick('rules',this)">発注ライン設定</button>
+</div>
+
+<div id="panel-input" class="panel active">
+  <div class="bar bar-yellow" id="unsaved-bar">⚠️ 未保存の入力があります。保存ボタンを押してください。</div>
+  <div class="bar bar-green" id="sending-bar">📤 スプレッドシートに保存中...</div>
+  <div class="bar bar-blue" id="nav-confirm-bar">
+    <span style="flex:1">「<span id="nav-dest-label"></span>」に移動します。未保存データはどうしますか？</span>
+    <button onclick="doNavSave()" style="height:30px;padding:0 12px;border:none;border-radius:6px;background:#1D9E75;color:#fff;font-size:12px;cursor:pointer">保存して移動</button>
+    <button onclick="doNavDiscard()" style="height:30px;padding:0 10px;border:1px solid #185FA5;border-radius:6px;background:transparent;color:#185FA5;font-size:12px;cursor:pointer">保存せず移動</button>
+    <button onclick="doNavCancel()" class="btn btn-sm">キャンセル</button>
+  </div>
+
+  <p class="section-label">在庫数を入力してください</p>
+  <div class="save-bar">
+    <button onclick="saveBulk()" class="btn btn-save">💾 保存</button>
+    <span class="flash" id="flash-top"></span>
+  </div>
+  <div class="item-grid" id="item-grid"></div>
+  <div class="save-bar">
+    <button onclick="saveBulk()" class="btn btn-save">💾 保存</button>
+    <span class="flash" id="flash-bottom"></span>
+  </div>
+</div>
+
+<div id="panel-order" class="panel">
+  <p class="section-label">発注判断シート</p>
+  <div id="order-alerts"></div>
+  <div style="overflow-x:auto">
+    <table>
+      <thead><tr>
+        <th style="width:160px">色 × 形</th>
+        <th style="width:70px">現在庫</th>
+        <th style="width:75px">前回比</th>
+        <th style="width:90px">月消費ペース</th>
+        <th style="width:75px">あと何日</th>
+        <th style="width:80px">判定</th>
+      </tr></thead>
+      <tbody id="order-tbody"></tbody>
+    </table>
+  </div>
+  <p id="order-empty" class="empty" style="display:none">在庫データがまだありません</p>
+</div>
+
+<div id="panel-history" class="panel">
+  <p class="section-label">入力履歴</p>
+  <div class="toolbar">
+    <label style="display:flex;align-items:center;gap:6px;margin-bottom:0;cursor:pointer;font-size:13px">
+      <input type="checkbox" id="chk-all" onchange="toggleAll(this)"> すべて選択
+    </label>
+    <button onclick="deleteChecked()" class="btn btn-danger btn-sm">🗑 選択削除</button>
+  </div>
+  <div id="history-list"></div>
+</div>
+
+<div id="panel-rules" class="panel">
+  <p class="section-label">発注ライン設定（残り○個以下で🔴発注）<span style="font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px;color:#aaa">変更は自動保存</span></p>
+  <div id="rules-grid"></div>
+  <p id="settings-saving" style="font-size:12px;color:#888;margin-top:8px;display:none">保存中...</p>
+  <p id="settings-saved" style="font-size:12px;color:#1D9E75;margin-top:8px;display:none">✓ 設定を保存しました</p>
+</div>
+</div>
+</div>
+
+<script>
+const CORRECT_PW = '021212';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwIy-U_ybQjLxVKtWuVA2DRZIi9OgbwBEFCFhh7mB_sqHfcD36rvZgcun25IcOCktw8rA/exec';
+const PRODUCT_NAME = 'お財布スマホポーチ';
+
+const ITEMS = [
+  {key:'beige-flap', label:'ベージュ × フラップタイプ'},
+  {key:'beige-belt', label:'ベージュ × ベルトタイプ'},
+  {key:'black-flap', label:'ブラック × フラップタイプ'},
+  {key:'black-belt', label:'ブラック × ベルトタイプ'},
+];
+
+let inv_history = [];
+let rules = {};
+let bulkDirty = false;
+let pendingTab = null;
+let saveTimer = null;
+
+function fmtDate(iso){const d=new Date(iso);return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');}
+function showBar(id,v){document.getElementById(id).style.display=v?'flex':'none';}
+function setDirty(v){bulkDirty=v;showBar('unsaved-bar',v);}
+function showFlash(msg){
+  ['flash-top','flash-bottom'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.textContent=msg;el.style.display='inline';
+    setTimeout(()=>el.style.display='none',3000);
+  });
+}
+
+function checkPw(){
+  const v=document.getElementById('pw-input').value;
+  if(v===CORRECT_PW){
+    document.getElementById('pw-overlay').style.display='none';
+    sessionStorage.setItem('emb_auth','1');
+    init();
+  } else {
+    document.getElementById('pw-error').style.display='block';
+    document.getElementById('pw-input').value='';
+  }
+}
+if(sessionStorage.getItem('emb_auth')==='1'){
+  document.getElementById('pw-overlay').style.display='none';
+  init();
+}
+
+function init(){
+  document.getElementById('loading').style.display='block';
+  document.getElementById('main-content').style.display='none';
+  fetch(GAS_URL+'?type=loadSettings&product='+encodeURIComponent(PRODUCT_NAME))
+  .then(r=>r.json())
+  .then(data=>{
+    rules={};
+    if(data.settings && data.settings.length>0){
+      data.settings.forEach(s=>{rules[s.model]={threshold:Number(s.threshold)||10};});
+    }
+    document.getElementById('loading').style.display='none';
+    document.getElementById('main-content').style.display='block';
+    buildItemGrid();
+  })
+  .catch(()=>{
+    document.getElementById('loading').style.display='none';
+    document.getElementById('main-content').style.display='block';
+    buildItemGrid();
+  });
+}
+
+function scheduleSaveSettings(){
+  if(saveTimer) clearTimeout(saveTimer);
+  document.getElementById('settings-saving').style.display='block';
+  document.getElementById('settings-saved').style.display='none';
+  saveTimer=setTimeout(()=>{
+    const settings=ITEMS.map(item=>({
+      model:item.key,
+      threshold:(rules[item.key]||{threshold:10}).threshold,
+      discontinued:false,
+      discDate:''
+    }));
+    fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'saveSettings',product:PRODUCT_NAME,settings:settings})})
+    .then(()=>{
+      document.getElementById('settings-saving').style.display='none';
+      document.getElementById('settings-saved').style.display='block';
+      setTimeout(()=>document.getElementById('settings-saved').style.display='none',2000);
+    })
+    .catch(()=>document.getElementById('settings-saving').style.display='none');
+  },1000);
+}
+
+function buildItemGrid(){
+  const g=document.getElementById('item-grid');g.innerHTML='';
+  ITEMS.forEach(item=>{
+    const d=document.createElement('div');
+    d.className='item-card';
+    d.innerHTML=`<div class="item-name">${item.label}</div>
+    <input type="number" min="0" placeholder="個数" data-key="${item.key}" style="">`;
+    d.querySelector('input').addEventListener('input',()=>setDirty(true));
+    g.appendChild(d);
+  });
+  setDirty(false);
+}
+
+function tabClick(t,el){
+  if(bulkDirty&&t!=='input'){
+    pendingTab={t,el};
+    document.getElementById('nav-dest-label').textContent=el.textContent.trim();
+    showBar('nav-confirm-bar',true);
+    return;
+  }
+  doSwitch(t,el);
+}
+
+function doNavSave(){saveBulk();showBar('nav-confirm-bar',false);if(pendingTab)doSwitch(pendingTab.t,pendingTab.el);pendingTab=null;}
+function doNavDiscard(){showBar('nav-confirm-bar',false);setDirty(false);if(pendingTab)doSwitch(pendingTab.t,pendingTab.el);pendingTab=null;}
+function doNavCancel(){showBar('nav-confirm-bar',false);pendingTab=null;}
+
+function doSwitch(t,el){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-'+t).classList.add('active');
+  if(t==='order')renderOrder();
+  if(t==='history')renderHistory();
+  if(t==='rules')renderRules();
+  if(t==='input')buildItemGrid();
+}
+
+function saveBulk(){
+  const inputs=document.querySelectorAll('#item-grid input[data-key]');
+  const newEntries=[];
+  const now=new Date().toISOString();
+  inputs.forEach(inp=>{
+    const v=parseInt(inp.value);
+    if(!isNaN(v)&&v>=0){
+      const item=ITEMS.find(i=>i.key===inp.dataset.key);
+      const entry={id:Date.now()+''+Math.floor(Math.random()*9999),date:now,model:inp.dataset.key,label:item.label,qty:v};
+      inv_history.push(entry);
+      newEntries.push(entry);
+      inp.value='';
+    }
+  });
+  setDirty(false);
+  if(newEntries.length>0) sendToSheet(newEntries);
+  else showFlash('入力がありません');
+}
+
+function sendToSheet(entries){
+  showBar('sending-bar',true);
+  const rows=entries.map(e=>({date:fmtDate(e.date),model:e.label,color:'',qty:e.qty}));
+  fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'saveStock',product:PRODUCT_NAME,rows:rows})})
+  .then(r=>r.json())
+  .then(()=>{showBar('sending-bar',false);showFlash('✓ '+entries.length+'件保存しました');})
+  .catch(()=>{showBar('sending-bar',false);showFlash('⚠️ 通信エラー。もう一度お試しください');});
+}
+
+function getLatest(){
+  const map={};
+  inv_history.forEach(h=>{if(!map[h.model]||h.date>map[h.model].date)map[h.model]=h;});
+  return map;
+}
+function getPrev(model,afterDate){
+  return inv_history.filter(h=>h.model===model&&h.date<afterDate).sort((a,b)=>b.date.localeCompare(a.date))[0]||null;
+}
+function daysBetween(a,b){return Math.max(1,Math.round((new Date(b)-new Date(a))/86400000));}
+
+function renderOrder(){
+  const latest=getLatest();
+  const tbody=document.getElementById('order-tbody');
+  const empty=document.getElementById('order-empty');
+  const alerts=document.getElementById('order-alerts');
+  tbody.innerHTML='';alerts.innerHTML='';
+  if(!Object.keys(latest).length){empty.style.display='block';return;}
+  empty.style.display='none';
+  let orderCount=0;
+  ITEMS.forEach(item=>{
+    const cur=latest[item.key];
+    if(!cur)return;
+    const prev=getPrev(item.key,cur.date);
+    const thr=parseInt((rules[item.key]||{}).threshold)||10;
+    let diff='—',pace='—',days='—';
+    if(prev){
+      const d=daysBetween(prev.date,cur.date);
+      const consumed=prev.qty-cur.qty;
+      diff=(consumed>=0?'-':'+')+Math.abs(consumed)+'個';
+      const daily=consumed/d;
+      if(daily>0){pace=Math.round(daily*30)+'個/月';days=Math.round(cur.qty/daily)+'日';}
+    }
+    let badge,label;
+    if(cur.qty<=thr){badge='badge-order';label='🔴 発注';orderCount++;}
+    else{badge='badge-ok';label='✅ 余裕';}
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${item.label}</td><td>${cur.qty}個</td><td style="font-size:12px;color:#888">${diff}</td><td style="font-size:12px">${pace}</td><td style="font-size:12px">${days}</td><td><span class="badge ${badge}">${label}</span></td>`;
+    tbody.appendChild(tr);
+  });
+  if(orderCount>0) alerts.innerHTML=`<div class="alert-box">⚠️ 発注が必要な商品が${orderCount}件あります</div>`;
+}
+
+function renderHistory(){
+  const list=document.getElementById('history-list');
+  const sorted=[...inv_history].sort((a,b)=>b.date.localeCompare(a.date));
+  if(!sorted.length){list.innerHTML='<p class="empty">履歴がありません</p>';return;}
+  list.innerHTML='<table><thead><tr><th style="width:28px"></th><th style="width:130px">日時</th><th>色 × 形</th><th style="width:60px">在庫</th><th style="width:36px"></th></tr></thead><tbody>'+
+    sorted.map(h=>`<tr>
+      <td><input type="checkbox" class="row-chk" data-id="${h.id}"></td>
+      <td style="font-size:12px;color:#888">${fmtDate(h.date)}</td>
+      <td>${h.label}</td>
+      <td style="font-weight:500">${h.qty}個</td>
+      <td><button onclick="deleteOne('${h.id}')" style="height:24px;padding:0 6px;border:1px solid #A32D2D;border-radius:6px;background:transparent;color:#A32D2D;font-size:11px;cursor:pointer">×</button></td>
+    </tr>`).join('')+'</tbody></table>';
+  document.getElementById('chk-all').checked=false;
+}
+
+function deleteOne(id){inv_history=inv_history.filter(h=>h.id!==id);renderHistory();}
+function toggleAll(chk){document.querySelectorAll('.row-chk').forEach(c=>c.checked=chk.checked);}
+function deleteChecked(){
+  const ids=[...document.querySelectorAll('.row-chk:checked')].map(c=>c.dataset.id);
+  if(!ids.length)return;
+  inv_history=inv_history.filter(h=>!ids.includes(h.id));
+  renderHistory();document.getElementById('chk-all').checked=false;
+}
+
+function renderRules(){
+  const g=document.getElementById('rules-grid');g.innerHTML='';
+  ITEMS.forEach(item=>{
+    const r=rules[item.key]||{threshold:10};
+    const row=document.createElement('div');
+    row.className='rule-row';
+    const nameSpan=document.createElement('span');
+    nameSpan.style.cssText='font-size:13px';
+    nameSpan.textContent=item.label;
+    const inp=document.createElement('input');
+    inp.type='number';inp.dataset.k=item.key;
+    inp.value=r.threshold||10;inp.min=0;
+    inp.style.cssText='height:30px;font-size:13px;padding:0 8px;border:1px solid #ddd;border-radius:6px;width:100%';
+    inp.addEventListener('change',()=>{rules[item.key]={threshold:parseInt(inp.value)||0};scheduleSaveSettings();});
+    const emptySpan=document.createElement('span');
+    const emptySpan2=document.createElement('span');
+    row.appendChild(nameSpan);row.appendChild(inp);row.appendChild(emptySpan);row.appendChild(emptySpan2);
+    g.appendChild(row);
+  });
+}
+</script>
+</body>
+</html>
