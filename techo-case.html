@@ -26,6 +26,7 @@ select,input[type=number],input[type=password]{height:36px;padding:0 10px;border
 .btn-sm{height:28px;padding:0 8px;font-size:12px}
 .btn-xs{height:24px;padding:0 6px;font-size:11px}
 .section-label{font-size:11px;font-weight:600;color:#888;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em}
+.size-label{font-size:13px;font-weight:600;color:#1a1a1a;background:#f0f0ee;padding:6px 10px;border-radius:6px;margin:12px 0 6px}
 .badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:500}
 .badge-ok{background:#EAF3DE;color:#3B6D11}
 .badge-order{background:#FCEBEB;color:#A32D2D}
@@ -42,13 +43,12 @@ td{padding:7px 8px;border-bottom:1px solid #eee;color:#1a1a1a;vertical-align:mid
 tr:last-child td{border-bottom:none}
 input[type=checkbox]{width:15px;height:15px;cursor:pointer}
 .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
-.rule-row{display:grid;grid-template-columns:1fr 72px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid #eee}
+.rule-row{display:grid;grid-template-columns:1fr 80px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid #eee}
 .save-bar{display:flex;align-items:center;gap:12px;padding:10px 0}
 .flash{font-size:12px;color:#1D9E75;font-weight:500;display:none}
-.bulk-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;margin-bottom:10px}
-.bulk-row{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid #eee}
-.bulk-row span{font-size:12px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bulk-row input{width:58px;height:26px;padding:0 6px;border:1px solid #ddd;border-radius:6px;font-size:12px;background:#fff}
+.bulk-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #eee}
+.bulk-row span{font-size:13px;flex:1}
+.bulk-row input{width:64px;height:28px;padding:0 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;background:#fff}
 .pw-overlay{position:fixed;inset:0;background:rgba(248,248,246,0.97);display:flex;align-items:center;justify-content:center;z-index:100}
 .pw-box{background:#fff;border:1px solid #ddd;border-radius:12px;padding:2rem;width:90%;max-width:360px;text-align:center}
 .pw-box h2{font-size:16px;font-weight:600;margin-bottom:8px}
@@ -94,12 +94,11 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
     <button onclick="doNavCancel()" class="btn btn-sm">キャンセル</button>
   </div>
 
-  <p class="section-label">一括入力</p>
   <div class="save-bar">
     <button onclick="saveBulk()" class="btn btn-save">💾 一括保存</button>
     <span class="flash" id="flash-top"></span>
   </div>
-  <div class="bulk-grid" id="bulk-grid"></div>
+  <div id="bulk-grid"></div>
   <div class="save-bar">
     <button onclick="saveBulk()" class="btn btn-save">💾 一括保存</button>
     <span class="flash" id="flash-bottom"></span>
@@ -112,7 +111,8 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
   <div style="overflow-x:auto">
     <table>
       <thead><tr>
-        <th style="width:180px">色 × サイズ</th>
+        <th style="width:60px">サイズ</th>
+        <th style="width:130px">色</th>
         <th style="width:70px">現在庫</th>
         <th style="width:75px">前回比</th>
         <th style="width:90px">月消費ペース</th>
@@ -145,7 +145,7 @@ input[type=checkbox]{width:15px;height:15px;cursor:pointer}
     <button onclick="applyBulkThreshold()" class="btn btn-sm">全部これにする</button>
   </div>
   <div style="display:grid;grid-template-columns:1fr 80px;gap:8px;padding:4px 0 6px;border-bottom:1px solid #eee">
-    <span style="font-size:11px;color:#888">色 × サイズ</span>
+    <span style="font-size:11px;color:#888">サイズ × 色</span>
     <span style="font-size:11px;color:#888;text-align:center">発注ライン</span>
   </div>
   <div id="rules-grid"></div>
@@ -162,15 +162,14 @@ const PRODUCT_NAME = 'レザーorデニム手帳型ケース';
 
 const COLORS = ['デニムライトブルー','デニムブルー','デニムブラック','ホワイト','ブラック','ネイビー','くすみグレー','くすみライトピンク','くすみブラウン'];
 const SIZES = ['L','LL','3L','4L'];
-
 const ITEMS = [];
-COLORS.forEach(c => SIZES.forEach(s => ITEMS.push({key: c+'_'+s, label: c+' × '+s})));
+SIZES.forEach(s => COLORS.forEach(c => ITEMS.push({key:s+'_'+c, size:s, color:c, label:s+' × '+c})));
 
-let inv_history = [];
-let rules = {};
-let bulkDirty = false;
-let pendingTab = null;
-let saveTimer = null;
+let inv_history=[];
+let rules={};
+let bulkDirty=false;
+let pendingTab=null;
+let saveTimer=null;
 
 function fmtDate(iso){const d=new Date(iso);return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');}
 function showBar(id,v){document.getElementById(id).style.display=v?'flex':'none';}
@@ -225,12 +224,7 @@ function scheduleSaveSettings(){
   document.getElementById('settings-saving').style.display='block';
   document.getElementById('settings-saved').style.display='none';
   saveTimer=setTimeout(()=>{
-    const settings=ITEMS.map(item=>({
-      model:item.key,
-      threshold:(rules[item.key]||{threshold:10}).threshold,
-      discontinued:false,
-      discDate:''
-    }));
+    const settings=ITEMS.map(item=>({model:item.key,threshold:(rules[item.key]||{threshold:10}).threshold,discontinued:false,discDate:''}));
     fetch(GAS_URL,{method:'POST',body:JSON.stringify({type:'saveSettings',product:PRODUCT_NAME,settings:settings})})
     .then(()=>{
       document.getElementById('settings-saving').style.display='none';
@@ -243,13 +237,19 @@ function scheduleSaveSettings(){
 
 function buildBulkGrid(){
   const g=document.getElementById('bulk-grid');g.innerHTML='';
-  ITEMS.forEach(item=>{
-    const d=document.createElement('div');
-    d.className='bulk-row';
-    d.innerHTML=`<span title="${item.label}">${item.label}</span>
-    <input type="number" min="0" placeholder="—" data-key="${item.key}">`;
-    d.querySelector('input').addEventListener('input',()=>setDirty(true));
-    g.appendChild(d);
+  SIZES.forEach(size=>{
+    const sizeHeader=document.createElement('div');
+    sizeHeader.className='size-label';
+    sizeHeader.textContent='サイズ：'+size;
+    g.appendChild(sizeHeader);
+    COLORS.forEach(color=>{
+      const key=size+'_'+color;
+      const row=document.createElement('div');
+      row.className='bulk-row';
+      row.innerHTML=`<span>${color}</span><input type="number" min="0" placeholder="—" data-key="${key}">`;
+      row.querySelector('input').addEventListener('input',()=>setDirty(true));
+      g.appendChild(row);
+    });
   });
   setDirty(false);
 }
@@ -287,7 +287,7 @@ function saveBulk(){
     const v=parseInt(inp.value);
     if(!isNaN(v)&&v>=0){
       const item=ITEMS.find(i=>i.key===inp.dataset.key);
-      const entry={id:Date.now()+''+Math.floor(Math.random()*9999),date:now,model:inp.dataset.key,label:item.label,qty:v};
+      const entry={id:Date.now()+''+Math.floor(Math.random()*9999),date:now,model:inp.dataset.key,label:item.label,size:item.size,color:item.color,qty:v};
       inv_history.push(entry);newEntries.push(entry);inp.value='';
     }
   });
@@ -341,7 +341,7 @@ function renderOrder(){
     if(cur.qty<=thr){badge='badge-order';label='🔴 発注';orderCount++;}
     else{badge='badge-ok';label='✅ 余裕';}
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${item.label}</td><td>${cur.qty}個</td><td style="font-size:12px;color:#888">${diff}</td><td style="font-size:12px">${pace}</td><td style="font-size:12px">${days}</td><td><span class="badge ${badge}">${label}</span></td>`;
+    tr.innerHTML=`<td>${item.size}</td><td>${item.color}</td><td>${cur.qty}個</td><td style="font-size:12px;color:#888">${diff}</td><td style="font-size:12px">${pace}</td><td style="font-size:12px">${days}</td><td><span class="badge ${badge}">${label}</span></td>`;
     tbody.appendChild(tr);
   });
   if(orderCount>0) alerts.innerHTML=`<div class="alert-box">⚠️ 発注が必要な商品が${orderCount}件あります</div>`;
@@ -351,7 +351,7 @@ function renderHistory(){
   const list=document.getElementById('history-list');
   const sorted=[...inv_history].sort((a,b)=>b.date.localeCompare(a.date));
   if(!sorted.length){list.innerHTML='<p class="empty">履歴がありません</p>';return;}
-  list.innerHTML='<table><thead><tr><th style="width:28px"></th><th style="width:130px">日時</th><th>色 × サイズ</th><th style="width:60px">在庫</th><th style="width:36px"></th></tr></thead><tbody>'+
+  list.innerHTML='<table><thead><tr><th style="width:28px"></th><th style="width:130px">日時</th><th>サイズ × 色</th><th style="width:60px">在庫</th><th style="width:36px"></th></tr></thead><tbody>'+
     sorted.map(h=>`<tr>
       <td><input type="checkbox" class="row-chk" data-id="${h.id}"></td>
       <td style="font-size:12px;color:#888">${fmtDate(h.date)}</td>
@@ -373,20 +373,27 @@ function deleteChecked(){
 
 function renderRules(){
   const g=document.getElementById('rules-grid');g.innerHTML='';
-  ITEMS.forEach(item=>{
-    const r=rules[item.key]||{threshold:10};
-    const row=document.createElement('div');
-    row.className='rule-row';
-    const nameSpan=document.createElement('span');
-    nameSpan.style.fontSize='13px';
-    nameSpan.textContent=item.label;
-    const inp=document.createElement('input');
-    inp.type='number';inp.dataset.k=item.key;
-    inp.value=r.threshold||10;inp.min=0;
-    inp.style.cssText='height:30px;font-size:13px;padding:0 8px;border:1px solid #ddd;border-radius:6px;width:100%';
-    inp.addEventListener('change',()=>{rules[item.key]={threshold:parseInt(inp.value)||0};scheduleSaveSettings();});
-    row.appendChild(nameSpan);row.appendChild(inp);
-    g.appendChild(row);
+  SIZES.forEach(size=>{
+    const sizeHeader=document.createElement('div');
+    sizeHeader.className='size-label';
+    sizeHeader.textContent='サイズ：'+size;
+    g.appendChild(sizeHeader);
+    COLORS.forEach(color=>{
+      const key=size+'_'+color;
+      const r=rules[key]||{threshold:10};
+      const row=document.createElement('div');
+      row.className='rule-row';
+      const nameSpan=document.createElement('span');
+      nameSpan.style.fontSize='13px';
+      nameSpan.textContent=color;
+      const inp=document.createElement('input');
+      inp.type='number';inp.dataset.k=key;
+      inp.value=r.threshold||10;inp.min=0;
+      inp.style.cssText='height:30px;font-size:13px;padding:0 8px;border:1px solid #ddd;border-radius:6px;width:100%';
+      inp.addEventListener('change',()=>{rules[key]={threshold:parseInt(inp.value)||0};scheduleSaveSettings();});
+      row.appendChild(nameSpan);row.appendChild(inp);
+      g.appendChild(row);
+    });
   });
 }
 
@@ -394,8 +401,7 @@ function applyBulkThreshold(){
   const v=parseInt(document.getElementById('bulk-threshold').value);
   if(isNaN(v)||v<0)return;
   document.querySelectorAll('#rules-grid input[data-k]').forEach(inp=>{
-    inp.value=v;
-    rules[inp.dataset.k]={threshold:v};
+    inp.value=v;rules[inp.dataset.k]={threshold:v};
   });
   scheduleSaveSettings();
 }
